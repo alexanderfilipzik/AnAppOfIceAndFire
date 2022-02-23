@@ -1,4 +1,4 @@
-package de.mobilecompass.anappoficeandfire.ui.theme
+package de.mobilecompass.anappoficeandfire.core.ui.theme
 
 import androidx.compose.material.Typography
 import androidx.compose.ui.text.TextStyle
