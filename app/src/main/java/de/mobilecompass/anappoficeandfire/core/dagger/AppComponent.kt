@@ -1,10 +1,16 @@
-package de.mobilecompass.anappoficeandfire.modules.houses.database
+package de.mobilecompass.anappoficeandfire.core.dagger
 
-import androidx.paging.PagingSource
-import de.mobilecompass.anappoficeandfire.modules.houses.database.models.HouseDB
-import de.mobilecompass.anappoficeandfire.modules.houses.database.models.HouseRemoteKeysDB
+import dagger.Component
+import de.mobilecompass.anappoficeandfire.modules.houses.dagger.HousesModule
+import de.mobilecompass.anappoficeandfire.modules.houses.ui.viewmodels.HouseListViewModel
+import javax.inject.Singleton
 
-interface HousesLocalDatasource {
+@Singleton
+@Component(modules = [
+    NetworkModule::class,
+    HousesModule::class
+])
+interface AppComponent {
 
     // ----------------------------------------------------------------------------
     // region Properties
@@ -18,15 +24,7 @@ interface HousesLocalDatasource {
     // region Methods
     // ----------------------------------------------------------------------------
 
-    suspend fun insertHouses(houses: List<HouseDB>)
-
-    suspend fun insertRemoteKeys(remoteKeys: List<HouseRemoteKeysDB>)
-
-    suspend fun getRemoteKeysByHouseId(id: Long): HouseRemoteKeysDB?
-
-    suspend fun deleteAll()
-
-    fun pagingSource(): PagingSource<Int, HouseDB>
+    fun inject(houseListViewModel: HouseListViewModel)
 
     // ----------------------------------------------------------------------------
     // endregion

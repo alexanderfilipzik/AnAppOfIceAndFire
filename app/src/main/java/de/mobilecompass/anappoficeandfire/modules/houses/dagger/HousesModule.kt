@@ -1,13 +1,22 @@
-package de.mobilecompass.anappoficeandfire.modules.houses.database
+package de.mobilecompass.anappoficeandfire.modules.houses.dagger
 
-import androidx.paging.PagingSource
-import de.mobilecompass.anappoficeandfire.modules.houses.database.models.HouseDB
-import de.mobilecompass.anappoficeandfire.modules.houses.database.models.HouseRemoteKeysDB
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import javax.inject.Inject
+import android.content.Context
+import androidx.room.Room
+import dagger.Module
+import dagger.Provides
+import de.mobilecompass.anappoficeandfire.modules.houses.HousesRepository
+import de.mobilecompass.anappoficeandfire.modules.houses.HousesRepositoryImpl
+import de.mobilecompass.anappoficeandfire.modules.houses.database.HouseDatabase
+import de.mobilecompass.anappoficeandfire.modules.houses.database.HousesLocalDatasource
+import de.mobilecompass.anappoficeandfire.modules.houses.database.HousesLocalDatasourceImpl
+import de.mobilecompass.anappoficeandfire.modules.houses.network.HousesApi
+import de.mobilecompass.anappoficeandfire.modules.houses.network.HousesRemoteDataSource
+import de.mobilecompass.anappoficeandfire.modules.houses.network.HousesRemoteDataSourceImpl
+import retrofit2.Retrofit
+import javax.inject.Singleton
 
-class HousesLocalDatasourceImpl @Inject constructor(private val database: HouseDatabase): HousesLocalDatasource {
+@Module
+class HousesModule(private val context: Context) {
 
     // ----------------------------------------------------------------------------
     // region Inner types
@@ -23,7 +32,7 @@ class HousesLocalDatasourceImpl @Inject constructor(private val database: HouseD
         // region Constants
         // ----------------------------------------------------------------------------
 
-        val LOG_TAG: String = HousesLocalDatasourceImpl::class.java.simpleName
+        val LOG_TAG: String = HousesModule::class.java.simpleName
 
         // ----------------------------------------------------------------------------
         // endregion
@@ -86,29 +95,6 @@ class HousesLocalDatasourceImpl @Inject constructor(private val database: HouseD
     // region System/Overridden methods
     // ----------------------------------------------------------------------------
 
-    override suspend fun insertHouses(houses: List<HouseDB>) =
-        withContext(Dispatchers.IO) {
-            database.houseDao.insertAll(houses)
-        }
-
-    override suspend fun insertRemoteKeys(remoteKeys: List<HouseRemoteKeysDB>) =
-        withContext(Dispatchers.IO) {
-            database.houseRemoteKeysDao.insertAll(remoteKeys)
-        }
-
-    override suspend fun getRemoteKeysByHouseId(id: Long): HouseRemoteKeysDB? =
-        withContext(Dispatchers.IO) {
-            database.houseRemoteKeysDao.remoteKeysByHouseId(id)
-        }
-
-    override suspend fun deleteAll() =
-        withContext(Dispatchers.IO) {
-            database.houseDao.deleteAll()
-            database.houseRemoteKeysDao.deleteAll()
-        }
-
-    override fun pagingSource(): PagingSource<Int, HouseDB> = database.houseDao.pagingSource()
-
     // ----------------------------------------------------------------------------
     // endregion
     // ----------------------------------------------------------------------------
@@ -116,6 +102,35 @@ class HousesLocalDatasourceImpl @Inject constructor(private val database: HouseD
     // ----------------------------------------------------------------------------
     // region Public methods
     // ----------------------------------------------------------------------------
+
+    @Provides
+    @Singleton
+    fun provideDatabase() = Room
+        .databaseBuilder(
+            context.applicationContext,
+            HouseDatabase::class.java,
+            "houseDatabase"
+        )
+        .build()
+
+    @Provides
+    @Singleton
+    fun provideApi(retrofit: Retrofit) = retrofit.create(HousesApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideLocalDatasource(localDatasourceImpl: HousesLocalDatasourceImpl): HousesLocalDatasource =
+        localDatasourceImpl
+
+    @Provides
+    @Singleton
+    fun provideRemoteDatasource(remoteDataSourceImpl: HousesRemoteDataSourceImpl): HousesRemoteDataSource =
+        remoteDataSourceImpl
+
+    @Provides
+    @Singleton
+    fun provideRepository(housesRepository: HousesRepositoryImpl): HousesRepository =
+        housesRepository
 
     // ----------------------------------------------------------------------------
     // endregion

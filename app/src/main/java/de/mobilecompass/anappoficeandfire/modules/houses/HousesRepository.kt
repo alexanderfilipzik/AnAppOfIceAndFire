@@ -1,10 +1,9 @@
-package de.mobilecompass.anappoficeandfire.modules.houses.database
+package de.mobilecompass.anappoficeandfire.modules.houses
 
-import androidx.paging.PagingSource
+import androidx.paging.Pager
 import de.mobilecompass.anappoficeandfire.modules.houses.database.models.HouseDB
-import de.mobilecompass.anappoficeandfire.modules.houses.database.models.HouseRemoteKeysDB
 
-interface HousesLocalDatasource {
+interface HousesRepository {
 
     // ----------------------------------------------------------------------------
     // region Properties
@@ -18,15 +17,7 @@ interface HousesLocalDatasource {
     // region Methods
     // ----------------------------------------------------------------------------
 
-    suspend fun insertHouses(houses: List<HouseDB>)
-
-    suspend fun insertRemoteKeys(remoteKeys: List<HouseRemoteKeysDB>)
-
-    suspend fun getRemoteKeysByHouseId(id: Long): HouseRemoteKeysDB?
-
-    suspend fun deleteAll()
-
-    fun pagingSource(): PagingSource<Int, HouseDB>
+    fun pager(): Pager<Int, HouseDB>
 
     // ----------------------------------------------------------------------------
     // endregion

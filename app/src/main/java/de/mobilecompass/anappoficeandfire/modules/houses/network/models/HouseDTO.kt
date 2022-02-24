@@ -7,7 +7,10 @@ import de.mobilecompass.anappoficeandfire.modules.houses.database.models.HouseDB
 @JsonClass(generateAdapter = true)
 data class HouseDTO(
     @Json(name = "url")
-    val url: String
+    val url: String,
+
+    @Json(name = "name")
+    val name: String
 ) {
 
     // ----------------------------------------------------------------------------
@@ -45,10 +48,11 @@ data class HouseDTO(
 }
 
 fun HouseDTO.asHouseDB(): HouseDB {
-    val id = url.split("/").last()
+    val id = url.split("/").last().toLong()
     return HouseDB(
         id,
-        url
+        url,
+        name
     )
 }
 

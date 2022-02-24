@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "houseRemoteKeys")
 data class HouseRemoteKeysDB(
     @PrimaryKey
-    val houseId: String,
+    val houseId: Long,
     val previousUrl: String?,
     val nextUrl: String?
 ) {

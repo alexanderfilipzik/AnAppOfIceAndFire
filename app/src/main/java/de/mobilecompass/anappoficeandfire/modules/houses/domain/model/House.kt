@@ -1,17 +1,6 @@
-package de.mobilecompass.anappoficeandfire.modules.houses.database.models
+package de.mobilecompass.anappoficeandfire.modules.houses.domain.model
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
-import de.mobilecompass.anappoficeandfire.modules.houses.domain.model.House
-
-@Entity(tableName = "houses")
-data class HouseDB(
-
-    @PrimaryKey
-    val id: Long,
-
-    val url: String,
-
+data class House(
     val name: String
 ) {
 
@@ -48,7 +37,3 @@ data class HouseDB(
     // ----------------------------------------------------------------------------
 
 }
-
-fun HouseDB.asHouse() = House(
-    name
-)

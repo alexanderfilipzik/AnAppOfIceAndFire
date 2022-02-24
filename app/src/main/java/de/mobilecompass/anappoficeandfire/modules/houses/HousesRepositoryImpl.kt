@@ -1,13 +1,18 @@
-package de.mobilecompass.anappoficeandfire.modules.houses.database
+package de.mobilecompass.anappoficeandfire.modules.houses
 
-import androidx.paging.PagingSource
+import androidx.paging.ExperimentalPagingApi
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import de.mobilecompass.anappoficeandfire.modules.houses.database.HousesLocalDatasource
 import de.mobilecompass.anappoficeandfire.modules.houses.database.models.HouseDB
-import de.mobilecompass.anappoficeandfire.modules.houses.database.models.HouseRemoteKeysDB
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import de.mobilecompass.anappoficeandfire.modules.houses.domain.HousesRemoteMediator
+import de.mobilecompass.anappoficeandfire.modules.houses.network.HousesRemoteDataSource
 import javax.inject.Inject
 
-class HousesLocalDatasourceImpl @Inject constructor(private val database: HouseDatabase): HousesLocalDatasource {
+class HousesRepositoryImpl @Inject constructor(
+    private val localDatasource: HousesLocalDatasource,
+    private val remoteDataSource: HousesRemoteDataSource
+): HousesRepository {
 
     // ----------------------------------------------------------------------------
     // region Inner types
@@ -23,7 +28,9 @@ class HousesLocalDatasourceImpl @Inject constructor(private val database: HouseD
         // region Constants
         // ----------------------------------------------------------------------------
 
-        val LOG_TAG: String = HousesLocalDatasourceImpl::class.java.simpleName
+        val LOG_TAG: String = HousesRepositoryImpl::class.java.simpleName
+
+        const val pageSize = 25
 
         // ----------------------------------------------------------------------------
         // endregion
@@ -86,28 +93,17 @@ class HousesLocalDatasourceImpl @Inject constructor(private val database: HouseD
     // region System/Overridden methods
     // ----------------------------------------------------------------------------
 
-    override suspend fun insertHouses(houses: List<HouseDB>) =
-        withContext(Dispatchers.IO) {
-            database.houseDao.insertAll(houses)
-        }
-
-    override suspend fun insertRemoteKeys(remoteKeys: List<HouseRemoteKeysDB>) =
-        withContext(Dispatchers.IO) {
-            database.houseRemoteKeysDao.insertAll(remoteKeys)
-        }
-
-    override suspend fun getRemoteKeysByHouseId(id: Long): HouseRemoteKeysDB? =
-        withContext(Dispatchers.IO) {
-            database.houseRemoteKeysDao.remoteKeysByHouseId(id)
-        }
-
-    override suspend fun deleteAll() =
-        withContext(Dispatchers.IO) {
-            database.houseDao.deleteAll()
-            database.houseRemoteKeysDao.deleteAll()
-        }
-
-    override fun pagingSource(): PagingSource<Int, HouseDB> = database.houseDao.pagingSource()
+    @OptIn(ExperimentalPagingApi::class)
+    override fun pager(): Pager<Int, HouseDB> = Pager(
+        config = PagingConfig(pageSize, enablePlaceholders = true),
+        remoteMediator = HousesRemoteMediator(
+            "https://www.anapioficeandfire.com/api/houses?pageSize=$pageSize",
+            localDatasource,
+            remoteDataSource
+        )
+    ) {
+        localDatasource.pagingSource()
+    }
 
     // ----------------------------------------------------------------------------
     // endregion

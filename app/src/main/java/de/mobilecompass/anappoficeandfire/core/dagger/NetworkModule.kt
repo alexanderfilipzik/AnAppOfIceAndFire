@@ -1,13 +1,13 @@
-package de.mobilecompass.anappoficeandfire.modules.houses.database
+package de.mobilecompass.anappoficeandfire.core.dagger
 
-import androidx.paging.PagingSource
-import de.mobilecompass.anappoficeandfire.modules.houses.database.models.HouseDB
-import de.mobilecompass.anappoficeandfire.modules.houses.database.models.HouseRemoteKeysDB
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import javax.inject.Inject
+import dagger.Module
+import dagger.Provides
+import retrofit2.Retrofit
+import retrofit2.converter.moshi.MoshiConverterFactory
+import javax.inject.Singleton
 
-class HousesLocalDatasourceImpl @Inject constructor(private val database: HouseDatabase): HousesLocalDatasource {
+@Module
+class NetworkModule(private val baseUrl: String) {
 
     // ----------------------------------------------------------------------------
     // region Inner types
@@ -23,7 +23,7 @@ class HousesLocalDatasourceImpl @Inject constructor(private val database: HouseD
         // region Constants
         // ----------------------------------------------------------------------------
 
-        val LOG_TAG: String = HousesLocalDatasourceImpl::class.java.simpleName
+        val LOG_TAG: String = NetworkModule::class.java.simpleName
 
         // ----------------------------------------------------------------------------
         // endregion
@@ -86,29 +86,6 @@ class HousesLocalDatasourceImpl @Inject constructor(private val database: HouseD
     // region System/Overridden methods
     // ----------------------------------------------------------------------------
 
-    override suspend fun insertHouses(houses: List<HouseDB>) =
-        withContext(Dispatchers.IO) {
-            database.houseDao.insertAll(houses)
-        }
-
-    override suspend fun insertRemoteKeys(remoteKeys: List<HouseRemoteKeysDB>) =
-        withContext(Dispatchers.IO) {
-            database.houseRemoteKeysDao.insertAll(remoteKeys)
-        }
-
-    override suspend fun getRemoteKeysByHouseId(id: Long): HouseRemoteKeysDB? =
-        withContext(Dispatchers.IO) {
-            database.houseRemoteKeysDao.remoteKeysByHouseId(id)
-        }
-
-    override suspend fun deleteAll() =
-        withContext(Dispatchers.IO) {
-            database.houseDao.deleteAll()
-            database.houseRemoteKeysDao.deleteAll()
-        }
-
-    override fun pagingSource(): PagingSource<Int, HouseDB> = database.houseDao.pagingSource()
-
     // ----------------------------------------------------------------------------
     // endregion
     // ----------------------------------------------------------------------------
@@ -116,6 +93,14 @@ class HousesLocalDatasourceImpl @Inject constructor(private val database: HouseD
     // ----------------------------------------------------------------------------
     // region Public methods
     // ----------------------------------------------------------------------------
+
+    @Provides
+    @Singleton
+    fun provideRetrofit(): Retrofit =
+        Retrofit.Builder()
+            .baseUrl(baseUrl)
+            .addConverterFactory(MoshiConverterFactory.create())
+            .build()
 
     // ----------------------------------------------------------------------------
     // endregion

@@ -95,21 +95,23 @@ class HouseDTOTest {
 
     @Test
     fun correctHouseDtoToDatabaseConversion() {
-        val id = "1234"
-        val dtoModel = HouseDTO("https://www.anapioficeandfire.com/api/houses/$id")
+        val id = 1234L
+        val name = "House"
+        val dtoModel = HouseDTO("https://www.anapioficeandfire.com/api/houses/$id", name)
 
         val dbModel = dtoModel.asHouseDB()
 
         Assert.assertEquals(dtoModel.url, dbModel.url)
         Assert.assertEquals(id, dbModel.id)
+        Assert.assertEquals(name, dbModel.name)
     }
 
     @Test
     fun correctHouseDataDtoToRemoteKeysDatabaseConversion() {
-        val id = "1234"
+        val id = 1234L
 
         val dtoModel = HousesDataDTO(
-            listOf(HouseDTO("https://www.anapioficeandfire.com/api/houses/$id")),
+            listOf(HouseDTO("https://www.anapioficeandfire.com/api/houses/$id", "House $id")),
             null,
             "next/page"
         )

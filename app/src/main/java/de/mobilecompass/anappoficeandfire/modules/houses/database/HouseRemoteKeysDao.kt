@@ -28,7 +28,7 @@ interface HouseRemoteKeysDao {
     suspend fun getAll(): List<HouseRemoteKeysDB>
 
     @Query("SELECT * FROM houseRemoteKeys WHERE houseId = :houseId")
-    fun remoteKeysByHouseId(houseId: String): HouseRemoteKeysDB?
+    fun remoteKeysByHouseId(houseId: Long): HouseRemoteKeysDB?
 
     @Query("DELETE FROM houseRemoteKeys")
     suspend fun deleteAll()

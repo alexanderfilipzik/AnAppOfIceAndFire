@@ -62,6 +62,10 @@ dependencies {
     implementation "androidx.room:room-ktx:$room_version"
     kapt "androidx.room:room-compiler:$room_version"
 
+    // Paging Compose - Pagination in compose :)
+    def paging_compose_version = "1.0.0-alpha14"
+    implementation "androidx.paging:paging-compose:$paging_compose_version"
+
     // Timber - Logging
     implementation 'com.jakewharton.timber:timber:5.0.1'
 

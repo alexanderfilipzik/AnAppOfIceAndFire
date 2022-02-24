@@ -43,7 +43,7 @@ class HousesRemoteDataSourceTest {
     class HousesApiMock : HousesApi {
         override suspend fun getHousesByURL(url: String): Response<List<HouseDTO>> {
             return Response.success(
-                listOf(HouseDTO("")),
+                listOf(HouseDTO("", "")),
                 Headers.of(
                     mapOf(
                         "link" to "<$nextUrl>; rel=\"next\", " +

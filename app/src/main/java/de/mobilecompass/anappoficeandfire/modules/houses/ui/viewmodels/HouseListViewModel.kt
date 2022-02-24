@@ -1,13 +1,17 @@
-package de.mobilecompass.anappoficeandfire.modules.houses.database
+package de.mobilecompass.anappoficeandfire.modules.houses.ui.viewmodels
 
-import androidx.paging.PagingSource
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.paging.ExperimentalPagingApi
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
+import de.mobilecompass.anappoficeandfire.core.FireAndIceApplication
+import de.mobilecompass.anappoficeandfire.modules.houses.HousesRepository
 import de.mobilecompass.anappoficeandfire.modules.houses.database.models.HouseDB
-import de.mobilecompass.anappoficeandfire.modules.houses.database.models.HouseRemoteKeysDB
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-class HousesLocalDatasourceImpl @Inject constructor(private val database: HouseDatabase): HousesLocalDatasource {
+class HouseListViewModel: ViewModel() {
 
     // ----------------------------------------------------------------------------
     // region Inner types
@@ -23,7 +27,7 @@ class HousesLocalDatasourceImpl @Inject constructor(private val database: HouseD
         // region Constants
         // ----------------------------------------------------------------------------
 
-        val LOG_TAG: String = HousesLocalDatasourceImpl::class.java.simpleName
+        val LOG_TAG: String = HouseListViewModel::class.java.simpleName
 
         // ----------------------------------------------------------------------------
         // endregion
@@ -41,6 +45,13 @@ class HousesLocalDatasourceImpl @Inject constructor(private val database: HouseD
     // ----------------------------------------------------------------------------
     // region Public properties
     // ----------------------------------------------------------------------------
+
+    @Inject
+    lateinit var repository: HousesRepository
+
+    @OptIn(ExperimentalPagingApi::class)
+    val houses: Flow<PagingData<HouseDB>>
+        get() = pagerFlow
 
     // ----------------------------------------------------------------------------
     // endregion
@@ -66,6 +77,8 @@ class HousesLocalDatasourceImpl @Inject constructor(private val database: HouseD
     // region Private properties
     // ----------------------------------------------------------------------------
 
+    private val pagerFlow: Flow<PagingData<HouseDB>>
+
     // ----------------------------------------------------------------------------
     // endregion
     // ----------------------------------------------------------------------------
@@ -75,7 +88,8 @@ class HousesLocalDatasourceImpl @Inject constructor(private val database: HouseD
     // ----------------------------------------------------------------------------
 
     init {
-
+        FireAndIceApplication.appComponent.inject(this)
+        pagerFlow = repository.pager().flow.cachedIn(viewModelScope)
     }
 
     // ----------------------------------------------------------------------------
@@ -85,29 +99,6 @@ class HousesLocalDatasourceImpl @Inject constructor(private val database: HouseD
     // ----------------------------------------------------------------------------
     // region System/Overridden methods
     // ----------------------------------------------------------------------------
-
-    override suspend fun insertHouses(houses: List<HouseDB>) =
-        withContext(Dispatchers.IO) {
-            database.houseDao.insertAll(houses)
-        }
-
-    override suspend fun insertRemoteKeys(remoteKeys: List<HouseRemoteKeysDB>) =
-        withContext(Dispatchers.IO) {
-            database.houseRemoteKeysDao.insertAll(remoteKeys)
-        }
-
-    override suspend fun getRemoteKeysByHouseId(id: Long): HouseRemoteKeysDB? =
-        withContext(Dispatchers.IO) {
-            database.houseRemoteKeysDao.remoteKeysByHouseId(id)
-        }
-
-    override suspend fun deleteAll() =
-        withContext(Dispatchers.IO) {
-            database.houseDao.deleteAll()
-            database.houseRemoteKeysDao.deleteAll()
-        }
-
-    override fun pagingSource(): PagingSource<Int, HouseDB> = database.houseDao.pagingSource()
 
     // ----------------------------------------------------------------------------
     // endregion

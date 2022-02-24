@@ -1,6 +1,10 @@
 package de.mobilecompass.anappoficeandfire.core
 
 import android.app.Application
+import de.mobilecompass.anappoficeandfire.core.dagger.AppComponent
+import de.mobilecompass.anappoficeandfire.core.dagger.DaggerAppComponent
+import de.mobilecompass.anappoficeandfire.core.dagger.NetworkModule
+import de.mobilecompass.anappoficeandfire.modules.houses.dagger.HousesModule
 import timber.log.Timber
 
 class FireAndIceApplication: Application() {
@@ -20,6 +24,9 @@ class FireAndIceApplication: Application() {
         // ----------------------------------------------------------------------------
 
         val LOG_TAG: String = FireAndIceApplication::class.java.simpleName
+
+        lateinit var appComponent: AppComponent
+            private set
 
         // ----------------------------------------------------------------------------
         // endregion
@@ -85,6 +92,8 @@ class FireAndIceApplication: Application() {
     override fun onCreate() {
         super.onCreate()
         Timber.plant(Timber.DebugTree())
+
+        initDagger()
     }
 
     // ----------------------------------------------------------------------------
@@ -110,6 +119,13 @@ class FireAndIceApplication: Application() {
     // ----------------------------------------------------------------------------
     // region Private methods
     // ----------------------------------------------------------------------------
+
+    private fun initDagger() {
+        appComponent = DaggerAppComponent.builder()
+            .networkModule(NetworkModule("https://www.anapioficeandfire.com/api/"))
+            .housesModule(HousesModule(this))
+            .build()
+    }
 
     // ----------------------------------------------------------------------------
     // endregion

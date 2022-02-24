@@ -182,7 +182,7 @@ class HousesRemoteMediatorTest {
     fun refreshLoadReturnsSuccessResultWhenMoreDataIsPresent() = runTest {
         housesRemoteDataSourceMock.data = HousesDataDTO(
             (0 until 10).map {
-                HouseDTO("url/to/house/$it")
+                HouseDTO("url/to/house/$it", "House $it")
             },
             null,
             "some/url/to/next/houses"
@@ -222,7 +222,7 @@ class HousesRemoteMediatorTest {
     fun appendLoadSuccess() = runTest {
         housesRemoteDataSourceMock.data = HousesDataDTO(
             (0 until 10).map {
-                HouseDTO("url/to/house/$it")
+                HouseDTO("url/to/house/$it","House $it")
             },
             null,
             "some/url/to/next/houses"
@@ -263,7 +263,7 @@ class HousesRemoteMediatorTest {
 
         housesRemoteDataSourceMock.data = HousesDataDTO(
             (10 until 20).map {
-                HouseDTO("url/to/house/$it")
+                HouseDTO("url/to/house/$it", "House $it")
             },
             null,
             null
