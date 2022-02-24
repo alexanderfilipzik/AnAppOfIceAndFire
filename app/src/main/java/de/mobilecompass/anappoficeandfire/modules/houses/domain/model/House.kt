@@ -1,7 +1,21 @@
 package de.mobilecompass.anappoficeandfire.modules.houses.domain.model
 
 data class House(
-    val name: String
+    val name: String = "",
+    val region: String = "",
+    val coatOfArms: String = "",
+    val words: String = "",
+    val titles: List<String> = listOf(),
+    val seats: List<String> = listOf(),
+    val currentLord: String = "",
+    val heir: String = "",
+    val overlordUrl: String = "",
+    val founded: String = "",
+    val founderUrl: String = "",
+    val diedOut: String = "",
+    val ancestralWeapons: List<String> = listOf(),
+    val cadetBranches: List<String> = listOf(),
+    val swornMembersUrls: List<String> = listOf()
 ) {
 
     // ----------------------------------------------------------------------------

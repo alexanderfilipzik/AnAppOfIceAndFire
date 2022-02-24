@@ -1,10 +1,7 @@
 package de.mobilecompass.anappoficeandfire.modules.houses.database
 
 import androidx.paging.PagingSource
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
+import androidx.room.*
 import de.mobilecompass.anappoficeandfire.modules.houses.database.models.HouseDB
 
 @Dao

@@ -1,18 +1,11 @@
-package de.mobilecompass.anappoficeandfire.modules.houses
+package de.mobilecompass.anappoficeandfire.modules.houses.database.converter
 
-import androidx.paging.ExperimentalPagingApi
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
-import de.mobilecompass.anappoficeandfire.modules.houses.database.HousesLocalDatasource
-import de.mobilecompass.anappoficeandfire.modules.houses.database.models.HouseDB
-import de.mobilecompass.anappoficeandfire.modules.houses.domain.HousesRemoteMediator
-import de.mobilecompass.anappoficeandfire.modules.houses.network.HousesRemoteDataSource
-import javax.inject.Inject
+import androidx.room.TypeConverter
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.adapter
 
-class HousesRepositoryImpl @Inject constructor(
-    private val localDatasource: HousesLocalDatasource,
-    private val remoteDataSource: HousesRemoteDataSource
-): HousesRepository {
+@OptIn(ExperimentalStdlibApi::class)
+class HouseDBConverters {
 
     // ----------------------------------------------------------------------------
     // region Inner types
@@ -28,9 +21,9 @@ class HousesRepositoryImpl @Inject constructor(
         // region Constants
         // ----------------------------------------------------------------------------
 
-        val LOG_TAG: String = HousesRepositoryImpl::class.java.simpleName
+        val LOG_TAG: String = HouseDBConverters::class.java.simpleName
 
-        const val pageSize = 50
+        val moshi: Moshi = Moshi.Builder().build()
 
         // ----------------------------------------------------------------------------
         // endregion
@@ -93,18 +86,6 @@ class HousesRepositoryImpl @Inject constructor(
     // region System/Overridden methods
     // ----------------------------------------------------------------------------
 
-    @OptIn(ExperimentalPagingApi::class)
-    override fun pager(): Pager<Int, HouseDB> = Pager(
-        config = PagingConfig(pageSize, enablePlaceholders = true),
-        remoteMediator = HousesRemoteMediator(
-            "https://www.anapioficeandfire.com/api/houses?pageSize=$pageSize",
-            localDatasource,
-            remoteDataSource
-        )
-    ) {
-        localDatasource.pagingSource()
-    }
-
     // ----------------------------------------------------------------------------
     // endregion
     // ----------------------------------------------------------------------------
@@ -112,6 +93,20 @@ class HousesRepositoryImpl @Inject constructor(
     // ----------------------------------------------------------------------------
     // region Public methods
     // ----------------------------------------------------------------------------
+
+    @TypeConverter
+    fun fromList(list: List<String>?): String? {
+        val list = list ?: return null
+        val adapter = moshi.adapter<List<String>>()
+        return adapter.toJson(list)
+    }
+
+    @TypeConverter
+    fun fromString(string: String?): List<String>? {
+        val string = string ?: return null
+        val adapter = moshi.adapter<List<String>>()
+        return adapter.fromJson(string)
+    }
 
     // ----------------------------------------------------------------------------
     // endregion
