@@ -28,7 +28,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    HouseList(houses = viewModel.houses)
+                    HouseList(viewModel)
                 }
             }
         }

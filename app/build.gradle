@@ -55,6 +55,10 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.4.1'
     implementation 'androidx.activity:activity-compose:1.4.0'
 
+    // SwipeRefresh - PullToRefresh in compose :)
+    def swipe_refresh_version = "0.24.2-alpha"
+    implementation "com.google.accompanist:accompanist-swiperefresh:$swipe_refresh_version"
+
     // Room dependency
     def room_version = "2.4.1"
     implementation "androidx.room:room-runtime:$room_version"

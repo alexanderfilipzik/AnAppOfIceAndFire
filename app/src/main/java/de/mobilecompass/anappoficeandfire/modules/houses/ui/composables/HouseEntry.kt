@@ -18,11 +18,11 @@ import de.mobilecompass.anappoficeandfire.core.ui.theme.AnAppOfIceAndFireTheme
 import de.mobilecompass.anappoficeandfire.modules.houses.domain.model.House
 
 @Composable
-fun HouseListEntry(house: House) {
+fun HouseListEntry(house: House, onClick: () -> Unit = {}) {
     Surface(
         color = MaterialTheme.colors.primary,
         modifier = Modifier
-            .clickable { }
+            .clickable { onClick.invoke() }
             .fillMaxWidth()
             .padding(
                 horizontal = 4.dp,

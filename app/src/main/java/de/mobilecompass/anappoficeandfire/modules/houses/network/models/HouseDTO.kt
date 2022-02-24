@@ -10,49 +10,49 @@ data class HouseDTO(
     val url: String,
 
     @Json(name = "name")
-    val name: String,
+    val name: String = "",
 
     @Json(name = "region")
-    val region: String,
+    val region: String = "",
 
     @Json(name = "coatOfArms")
-    val coatOfArms: String,
+    val coatOfArms: String = "",
 
     @Json(name = "words")
-    val words: String,
+    val words: String = "",
 
     @Json(name = "titles")
-    val titles: List<String>,
+    val titles: List<String> = listOf(),
 
     @Json(name = "seats")
-    val seats: List<String>,
+    val seats: List<String> = listOf(),
 
     @Json(name = "currentLord")
-    val currentLord: String,
+    val currentLord: String = "",
 
     @Json(name = "heir")
-    val heir: String,
+    val heir: String = "",
 
     @Json(name = "overlord")
-    val overlordUrl: String,
+    val overlordUrl: String = "",
 
     @Json(name = "founded")
-    val founded: String,
+    val founded: String = "",
 
     @Json(name = "founder")
-    val founderUrl: String,
+    val founderUrl: String = "",
 
     @Json(name = "diedOut")
-    val diedOut: String,
+    val diedOut: String = "",
 
     @Json(name = "ancestralWeapons")
-    val ancestralWeapons: List<String>,
+    val ancestralWeapons: List<String> = listOf(),
 
     @Json(name = "cadetBranches")
-    val cadetBranches: List<String>,
+    val cadetBranches: List<String> = listOf(),
 
     @Json(name = "swornMembers")
-    val swornMembersUrls: List<String>
+    val swornMembersUrls: List<String> = listOf()
 ) {
 
     // ----------------------------------------------------------------------------

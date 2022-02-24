@@ -25,6 +25,9 @@ interface HouseDao {
     @Query("SELECT * FROM houses ORDER BY id")
     suspend fun getAll(): List<HouseDB>
 
+    @Query("SELECT COUNT(id) FROM houses")
+    suspend fun getCounter(): Int
+
     @Query("SELECT * FROM houses ORDER BY id")
     fun pagingSource(): PagingSource<Int, HouseDB>
 

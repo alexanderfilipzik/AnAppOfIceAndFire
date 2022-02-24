@@ -101,6 +101,11 @@ class HousesLocalDatasourceImpl @Inject constructor(private val database: HouseD
             database.houseRemoteKeysDao.remoteKeysByHouseId(id)
         }
 
+    override suspend fun getHousesCount(): Int =
+        withContext(Dispatchers.IO) {
+            database.houseDao.getCounter()
+        }
+
     override suspend fun deleteAll() =
         withContext(Dispatchers.IO) {
             database.houseDao.deleteAll()

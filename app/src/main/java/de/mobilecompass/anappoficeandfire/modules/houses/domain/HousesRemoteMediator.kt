@@ -8,8 +8,6 @@ import de.mobilecompass.anappoficeandfire.modules.houses.database.HousesLocalDat
 import de.mobilecompass.anappoficeandfire.modules.houses.database.models.HouseDB
 import de.mobilecompass.anappoficeandfire.modules.houses.network.HousesRemoteDataSource
 import de.mobilecompass.anappoficeandfire.modules.houses.network.models.asHousesDB
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.io.InvalidObjectException
 
 @OptIn(ExperimentalPagingApi::class)
@@ -17,7 +15,7 @@ class HousesRemoteMediator(
     val initialUrl: String,
     val localDatasource: HousesLocalDatasource,
     val remoteDataSource: HousesRemoteDataSource
-): RemoteMediator<Int, HouseDB>() {
+) : RemoteMediator<Int, HouseDB>() {
 
     // ----------------------------------------------------------------------------
     // region Inner types
@@ -96,20 +94,27 @@ class HousesRemoteMediator(
     // region System/Overridden methods
     // ----------------------------------------------------------------------------
 
+    override suspend fun initialize() =
+        if (localDatasource.getHousesCount() == 0)
+            InitializeAction.LAUNCH_INITIAL_REFRESH
+        else
+            InitializeAction.SKIP_INITIAL_REFRESH
+
     override suspend fun load(
         loadType: LoadType,
         state: PagingState<Int, HouseDB>
     ): MediatorResult {
         // Get URL to load or return a result from here
 
-        val url = when(loadType) {
+        val url = when (loadType) {
             LoadType.REFRESH -> initialUrl
             LoadType.PREPEND -> return MediatorResult.Success(true)
             LoadType.APPEND -> {
                 val lastItem = state.lastItemOrNull() ?: return MediatorResult.Success(true)
                 val keys = lastItem.let { house ->
                     localDatasource.getRemoteKeysByHouseId(house.id)
-                } ?: throw InvalidObjectException("No key entry found for append at state ${state.anchorPosition}")
+                }
+                    ?: throw InvalidObjectException("No key entry found for append at state ${state.anchorPosition}")
                 keys.nextUrl ?: return MediatorResult.Success(true)
             }
         }

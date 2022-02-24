@@ -24,6 +24,8 @@ interface HousesLocalDatasource {
 
     suspend fun getRemoteKeysByHouseId(id: Long): HouseRemoteKeysDB?
 
+    suspend fun getHousesCount(): Int
+
     suspend fun deleteAll()
 
     fun pagingSource(): PagingSource<Int, HouseDB>
