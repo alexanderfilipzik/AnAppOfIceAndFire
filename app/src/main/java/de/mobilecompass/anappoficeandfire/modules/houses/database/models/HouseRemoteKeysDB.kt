@@ -1,13 +1,14 @@
-package de.mobilecompass.anappoficeandfire.modules.houses.network.models
+package de.mobilecompass.anappoficeandfire.modules.houses.database.models
 
-import com.squareup.moshi.Json
-import com.squareup.moshi.JsonClass
-import de.mobilecompass.anappoficeandfire.modules.houses.database.models.HouseDB
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 
-@JsonClass(generateAdapter = true)
-data class HouseDTO(
-    @Json(name = "url")
-    val url: String
+@Entity(tableName = "houseRemoteKeys")
+data class HouseRemoteKeysDB(
+    @PrimaryKey
+    val houseId: String,
+    val previousUrl: String?,
+    val nextUrl: String?
 ) {
 
     // ----------------------------------------------------------------------------
@@ -42,16 +43,4 @@ data class HouseDTO(
     // endregion
     // ----------------------------------------------------------------------------
 
-}
-
-fun HouseDTO.asHouseDB(): HouseDB {
-    val id = url.split("/").last()
-    return HouseDB(
-        id,
-        url
-    )
-}
-
-fun List<HouseDTO>.asHousesDB() = map {
-    it.asHouseDB()
 }

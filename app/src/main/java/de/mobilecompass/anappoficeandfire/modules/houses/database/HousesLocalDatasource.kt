@@ -1,12 +1,10 @@
-package de.mobilecompass.anappoficeandfire.modules.houses.network
+package de.mobilecompass.anappoficeandfire.modules.houses.database
 
-import de.mobilecompass.anappoficeandfire.modules.houses.network.models.HouseDTO
-import retrofit2.Response
-import retrofit2.http.GET
-import retrofit2.http.Headers
-import retrofit2.http.Url
+import androidx.paging.PagingSource
+import de.mobilecompass.anappoficeandfire.modules.houses.database.models.HouseDB
+import de.mobilecompass.anappoficeandfire.modules.houses.database.models.HouseRemoteKeysDB
 
-interface HousesApi {
+interface HousesLocalDatasource {
 
     // ----------------------------------------------------------------------------
     // region Properties
@@ -20,11 +18,15 @@ interface HousesApi {
     // region Methods
     // ----------------------------------------------------------------------------
 
-    @GET
-    @Headers(
-        "Accept: application/vnd.anapioficeandfire+json; version=1"
-    )
-    suspend fun getHousesByURL(@Url url: String): Response<List<HouseDTO>>
+    suspend fun insertHouses(houses: List<HouseDB>)
+
+    suspend fun insertRemoteKeys(remoteKeys: List<HouseRemoteKeysDB>)
+
+    suspend fun getRemoteKeysByHouseId(id: String): HouseRemoteKeysDB?
+
+    suspend fun deleteAll()
+
+    fun pagingSource(): PagingSource<Int, HouseDB>
 
     // ----------------------------------------------------------------------------
     // endregion

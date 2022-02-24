@@ -1,6 +1,6 @@
 package de.mobilecompass.anappoficeandfire.modules.houses.network
 
-import de.mobilecompass.anappoficeandfire.modules.houses.network.models.HousesData
+import de.mobilecompass.anappoficeandfire.modules.houses.network.models.HousesDataDTO
 
 interface HousesRemoteDataSource {
 
@@ -16,7 +16,7 @@ interface HousesRemoteDataSource {
     // region Methods
     // ----------------------------------------------------------------------------
 
-    suspend fun getHouses(url: String): Result<HousesData>
+    suspend fun getHouses(url: String): Result<HousesDataDTO>
 
     // ----------------------------------------------------------------------------
     // endregion

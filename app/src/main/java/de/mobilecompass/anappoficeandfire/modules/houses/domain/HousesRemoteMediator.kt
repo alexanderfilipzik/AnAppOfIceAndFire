@@ -1,16 +1,23 @@
-package de.mobilecompass.anappoficeandfire.modules.houses.network
+package de.mobilecompass.anappoficeandfire.modules.houses.domain
 
-import de.mobilecompass.anappoficeandfire.modules.houses.network.models.HousesDataDTO
-import de.mobilecompass.anappoficeandfire.modules.houses.network.models.HousesRemoteException
+import androidx.paging.ExperimentalPagingApi
+import androidx.paging.LoadType
+import androidx.paging.PagingState
+import androidx.paging.RemoteMediator
+import de.mobilecompass.anappoficeandfire.modules.houses.database.HousesLocalDatasource
+import de.mobilecompass.anappoficeandfire.modules.houses.database.models.HouseDB
+import de.mobilecompass.anappoficeandfire.modules.houses.network.HousesRemoteDataSource
+import de.mobilecompass.anappoficeandfire.modules.houses.network.models.asHousesDB
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import okhttp3.Headers
-import timber.log.Timber
-import javax.inject.Inject
+import java.io.InvalidObjectException
 
-class HousesRemoteDataSourceImpl @Inject constructor(
-    private val housesApi: HousesApi
-) : HousesRemoteDataSource {
+@OptIn(ExperimentalPagingApi::class)
+class HousesRemoteMediator(
+    val initialUrl: String,
+    val localDatasource: HousesLocalDatasource,
+    val remoteDataSource: HousesRemoteDataSource
+): RemoteMediator<Int, HouseDB>() {
 
     // ----------------------------------------------------------------------------
     // region Inner types
@@ -20,12 +27,13 @@ class HousesRemoteDataSourceImpl @Inject constructor(
     // endregion
     // ----------------------------------------------------------------------------
 
+
     companion object {
         // ----------------------------------------------------------------------------
         // region Constants
         // ----------------------------------------------------------------------------
 
-        val LOG_TAG: String = HousesRemoteDataSourceImpl::class.java.simpleName
+        val LOG_TAG: String = HousesRemoteMediator::class.java.simpleName
 
         // ----------------------------------------------------------------------------
         // endregion
@@ -88,34 +96,47 @@ class HousesRemoteDataSourceImpl @Inject constructor(
     // region System/Overridden methods
     // ----------------------------------------------------------------------------
 
-    override suspend fun getHouses(url: String): Result<HousesDataDTO> =
-        withContext(Dispatchers.IO) {
-            val housesResponse = housesApi.getHousesByURL(url)
-            val housesList = housesResponse.body()
+    override suspend fun load(
+        loadType: LoadType,
+        state: PagingState<Int, HouseDB>
+    ): MediatorResult {
+        // Get URL to load or return a result from here
 
-            if (!housesResponse.isSuccessful || housesList.isNullOrEmpty()) {
-                val errorMessage = housesResponse.message() ?: "Unknown error"
-                Timber.e("Error while fetching houses for url: $errorMessage")
-                return@withContext Result.failure(HousesRemoteException(housesResponse.message()))
+        val url = when(loadType) {
+            LoadType.REFRESH -> initialUrl
+            LoadType.PREPEND -> return MediatorResult.Success(true)
+            LoadType.APPEND -> {
+                val lastItem = state.lastItemOrNull() ?: return MediatorResult.Success(true)
+                val keys = lastItem.let { house ->
+                    localDatasource.getRemoteKeysByHouseId(house.id)
+                } ?: throw InvalidObjectException("No key entry found for append at state ${state.anchorPosition}")
+                keys.nextUrl ?: return MediatorResult.Success(true)
             }
-
-            val headers = housesResponse.headers()
-            val linkHeaderEntries = getLinkHeaderValues(headers)
-
-            val previousUrl = linkHeaderEntries?.firstNotNullOfOrNull {
-                if (it.key == "prev") it.value else null
-            }
-
-            val nextUrl = linkHeaderEntries?.firstNotNullOfOrNull {
-                if (it.key == "next") it.value else null
-            }
-
-            Timber.d("Previous url: $previousUrl")
-            Timber.d("Next url: $nextUrl")
-            Timber.d("Houses count: ${housesList.size}")
-
-            Result.success(HousesDataDTO(housesList, previousUrl, nextUrl))
         }
+
+        // Load remote content from URL
+
+        val housesData = remoteDataSource.getHouses(url).getOrElse {
+            return@load MediatorResult.Error(it)
+        }
+
+        // If a refresh happens, delete everything from the database
+        // TODO: improve, to make just an update call with lastUpdateDate from the Header
+
+        if (loadType == LoadType.REFRESH)
+            localDatasource.deleteAll()
+
+        // Insert remote content into database
+
+        localDatasource.insertHouses(housesData.list.asHousesDB())
+        localDatasource.insertRemoteKeys(housesData.asRemoteKeysDB())
+
+        // Check if end of pagination is reached
+
+        val endOfPaginationReached = housesData.nextPageUrl == null
+
+        return MediatorResult.Success(endOfPaginationReached)
+    }
 
     // ----------------------------------------------------------------------------
     // endregion
@@ -140,32 +161,6 @@ class HousesRemoteDataSourceImpl @Inject constructor(
     // ----------------------------------------------------------------------------
     // region Private methods
     // ----------------------------------------------------------------------------
-
-    /**
-     * Tries to parse the link header and map the entries into a map.
-     * This map should consist of the "prev", "next", "current" keys with their
-     * corresponding values.
-     *
-     * @param headers the headers of the response
-     *
-     * @return the parsed map of the link header
-     */
-    private fun getLinkHeaderValues(headers: Headers): Map<String, String>? {
-        val linkHeader = headers["link"]
-        val linkHeaderRegExString = ".*<(.+)>;.*rel=\"(.+)\".*"
-        val linkHeaderRegEx = Regex(linkHeaderRegExString)
-        val linkHeaderEntries = linkHeader?.split(",")
-        val parsedLinkHeaderEntries = linkHeaderEntries
-            ?.map {
-                val match = linkHeaderRegEx.find(it) ?: return@map null
-                val (url, linkType) = match.destructured
-                linkType to url
-            }
-            ?.filterNotNull()
-            ?.toMap()
-
-        return parsedLinkHeaderEntries
-    }
 
     // ----------------------------------------------------------------------------
     // endregion

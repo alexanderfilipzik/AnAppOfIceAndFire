@@ -1,16 +1,12 @@
-package de.mobilecompass.anappoficeandfire.modules.houses.network
+package de.mobilecompass.anappoficeandfire.modules.houses.network.models
 
-import de.mobilecompass.anappoficeandfire.modules.houses.network.models.HousesDataDTO
-import de.mobilecompass.anappoficeandfire.modules.houses.network.models.HousesRemoteException
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import okhttp3.Headers
-import timber.log.Timber
-import javax.inject.Inject
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import org.junit.Assert
+import org.junit.Test
+import org.junit.runner.RunWith
 
-class HousesRemoteDataSourceImpl @Inject constructor(
-    private val housesApi: HousesApi
-) : HousesRemoteDataSource {
+@RunWith(AndroidJUnit4::class)
+class HouseDTOTest {
 
     // ----------------------------------------------------------------------------
     // region Inner types
@@ -20,12 +16,13 @@ class HousesRemoteDataSourceImpl @Inject constructor(
     // endregion
     // ----------------------------------------------------------------------------
 
+
     companion object {
         // ----------------------------------------------------------------------------
         // region Constants
         // ----------------------------------------------------------------------------
 
-        val LOG_TAG: String = HousesRemoteDataSourceImpl::class.java.simpleName
+        val LOG_TAG: String = HouseDTOTest::class.java.simpleName
 
         // ----------------------------------------------------------------------------
         // endregion
@@ -88,35 +85,6 @@ class HousesRemoteDataSourceImpl @Inject constructor(
     // region System/Overridden methods
     // ----------------------------------------------------------------------------
 
-    override suspend fun getHouses(url: String): Result<HousesDataDTO> =
-        withContext(Dispatchers.IO) {
-            val housesResponse = housesApi.getHousesByURL(url)
-            val housesList = housesResponse.body()
-
-            if (!housesResponse.isSuccessful || housesList.isNullOrEmpty()) {
-                val errorMessage = housesResponse.message() ?: "Unknown error"
-                Timber.e("Error while fetching houses for url: $errorMessage")
-                return@withContext Result.failure(HousesRemoteException(housesResponse.message()))
-            }
-
-            val headers = housesResponse.headers()
-            val linkHeaderEntries = getLinkHeaderValues(headers)
-
-            val previousUrl = linkHeaderEntries?.firstNotNullOfOrNull {
-                if (it.key == "prev") it.value else null
-            }
-
-            val nextUrl = linkHeaderEntries?.firstNotNullOfOrNull {
-                if (it.key == "next") it.value else null
-            }
-
-            Timber.d("Previous url: $previousUrl")
-            Timber.d("Next url: $nextUrl")
-            Timber.d("Houses count: ${housesList.size}")
-
-            Result.success(HousesDataDTO(housesList, previousUrl, nextUrl))
-        }
-
     // ----------------------------------------------------------------------------
     // endregion
     // ----------------------------------------------------------------------------
@@ -124,6 +92,37 @@ class HousesRemoteDataSourceImpl @Inject constructor(
     // ----------------------------------------------------------------------------
     // region Public methods
     // ----------------------------------------------------------------------------
+
+    @Test
+    fun correctHouseDtoToDatabaseConversion() {
+        val id = "1234"
+        val dtoModel = HouseDTO("https://www.anapioficeandfire.com/api/houses/$id")
+
+        val dbModel = dtoModel.asHouseDB()
+
+        Assert.assertEquals(dtoModel.url, dbModel.url)
+        Assert.assertEquals(id, dbModel.id)
+    }
+
+    @Test
+    fun correctHouseDataDtoToRemoteKeysDatabaseConversion() {
+        val id = "1234"
+
+        val dtoModel = HousesDataDTO(
+            listOf(HouseDTO("https://www.anapioficeandfire.com/api/houses/$id")),
+            null,
+            "next/page"
+        )
+
+        val dbModel = dtoModel.asRemoteKeysDB()
+
+        Assert.assertTrue(dbModel.isNotEmpty())
+        dbModel.forEach {
+            Assert.assertEquals(id, it.houseId)
+            Assert.assertEquals(dtoModel.previousPageUrl, it.previousUrl)
+            Assert.assertEquals(dtoModel.nextPageUrl, it.nextUrl)
+        }
+    }
 
     // ----------------------------------------------------------------------------
     // endregion
@@ -140,32 +139,6 @@ class HousesRemoteDataSourceImpl @Inject constructor(
     // ----------------------------------------------------------------------------
     // region Private methods
     // ----------------------------------------------------------------------------
-
-    /**
-     * Tries to parse the link header and map the entries into a map.
-     * This map should consist of the "prev", "next", "current" keys with their
-     * corresponding values.
-     *
-     * @param headers the headers of the response
-     *
-     * @return the parsed map of the link header
-     */
-    private fun getLinkHeaderValues(headers: Headers): Map<String, String>? {
-        val linkHeader = headers["link"]
-        val linkHeaderRegExString = ".*<(.+)>;.*rel=\"(.+)\".*"
-        val linkHeaderRegEx = Regex(linkHeaderRegExString)
-        val linkHeaderEntries = linkHeader?.split(",")
-        val parsedLinkHeaderEntries = linkHeaderEntries
-            ?.map {
-                val match = linkHeaderRegEx.find(it) ?: return@map null
-                val (url, linkType) = match.destructured
-                linkType to url
-            }
-            ?.filterNotNull()
-            ?.toMap()
-
-        return parsedLinkHeaderEntries
-    }
 
     // ----------------------------------------------------------------------------
     // endregion

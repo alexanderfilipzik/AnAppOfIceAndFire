@@ -14,11 +14,6 @@ import retrofit2.Response
 import javax.inject.Inject
 import javax.inject.Singleton
 
-@Singleton
-@Component(modules = [HousesRemoteDataSourceTest.DaggerModule::class])
-interface TestComponent {
-    fun inject(test: HousesRemoteDataSourceTest)
-}
 
 @RunWith(AndroidJUnit4::class)
 class HousesRemoteDataSourceTest {
@@ -26,6 +21,12 @@ class HousesRemoteDataSourceTest {
     // ----------------------------------------------------------------------------
     // region Inner types
     // ----------------------------------------------------------------------------
+
+    @Singleton
+    @Component(modules = [DaggerModule::class])
+    interface TestComponent {
+        fun inject(test: HousesRemoteDataSourceTest)
+    }
 
     @Module
     class DaggerModule {
@@ -122,7 +123,7 @@ class HousesRemoteDataSourceTest {
     // ----------------------------------------------------------------------------
 
     init {
-        val component = DaggerTestComponent
+        val component = DaggerHousesRemoteDataSourceTest_TestComponent
             .builder()
             .daggerModule(DaggerModule())
             .build()

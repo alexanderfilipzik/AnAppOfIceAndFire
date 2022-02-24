@@ -1,12 +1,14 @@
-package de.mobilecompass.anappoficeandfire.modules.houses.network
+package de.mobilecompass.anappoficeandfire.modules.houses.database
 
-import de.mobilecompass.anappoficeandfire.modules.houses.network.models.HouseDTO
-import retrofit2.Response
-import retrofit2.http.GET
-import retrofit2.http.Headers
-import retrofit2.http.Url
+import androidx.paging.PagingSource
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import de.mobilecompass.anappoficeandfire.modules.houses.database.models.HouseDB
 
-interface HousesApi {
+@Dao
+interface HouseDao {
 
     // ----------------------------------------------------------------------------
     // region Properties
@@ -20,11 +22,17 @@ interface HousesApi {
     // region Methods
     // ----------------------------------------------------------------------------
 
-    @GET
-    @Headers(
-        "Accept: application/vnd.anapioficeandfire+json; version=1"
-    )
-    suspend fun getHousesByURL(@Url url: String): Response<List<HouseDTO>>
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(houses: List<HouseDB>)
+
+    @Query("SELECT * FROM houses ORDER BY id")
+    suspend fun getAll(): List<HouseDB>
+
+    @Query("SELECT * FROM houses ORDER BY id")
+    fun pagingSource(): PagingSource<Int, HouseDB>
+
+    @Query("DELETE FROM houses")
+    suspend fun deleteAll()
 
     // ----------------------------------------------------------------------------
     // endregion
