@@ -43,11 +43,11 @@ fun HouseListEntry(house: House, onClick: () -> Unit = {}) {
             CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
                 Column {
                     Text(
-                        text = house.region.ifEmpty { "-" },
+                        text = house.region.ifBlank { "-" },
                         style = MaterialTheme.typography.subtitle1,
                     )
                     Text(
-                        text = house.words.ifEmpty { "-" },
+                        text = house.words.ifBlank { "-" },
                         style = MaterialTheme.typography.subtitle1,
                         fontStyle = FontStyle.Italic
                     )

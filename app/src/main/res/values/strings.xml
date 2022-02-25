@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">An App Of Ice And Fire</string>
+
+    <string name="label_house_region">Region</string>
+    <string name="label_house_words">Words</string>
+    <string name="label_house_coat_of_arms">Coat of arms</string>
+    <string name="label_house_coat_of_titles">Titles</string>
+    <string name="label_house_coat_of_seats">Seats</string>
+    <string name="label_house_coat_of_ancestral_weapons">Ancestral weapons</string>
+    <string name="label_house_coat_of_current_founded">Founded</string>
+    <string name="label_house_coat_of_current_died_out">Died out</string>
+
 </resources>
