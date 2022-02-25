@@ -55,6 +55,10 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.4.1'
     implementation 'androidx.activity:activity-compose:1.4.0'
 
+    // Navigation Compose
+    def navigation_compose_version = "2.5.0-alpha03"
+    implementation "androidx.navigation:navigation-compose:$navigation_compose_version"
+
     // SwipeRefresh - PullToRefresh in compose :)
     def swipe_refresh_version = "0.24.2-alpha"
     implementation "com.google.accompanist:accompanist-swiperefresh:$swipe_refresh_version"

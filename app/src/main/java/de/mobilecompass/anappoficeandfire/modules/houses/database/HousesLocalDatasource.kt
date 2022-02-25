@@ -22,6 +22,8 @@ interface HousesLocalDatasource {
 
     suspend fun insertRemoteKeys(remoteKeys: List<HouseRemoteKeysDB>)
 
+    suspend fun getHouse(id: Long): HouseDB?
+
     suspend fun getRemoteKeysByHouseId(id: Long): HouseRemoteKeysDB?
 
     suspend fun getHousesCount(): Int

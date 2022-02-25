@@ -1,21 +1,28 @@
 package de.mobilecompass.anappoficeandfire.modules.houses.ui.viewmodels
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.ExperimentalPagingApi
-import androidx.paging.PagingData
-import androidx.paging.cachedIn
 import de.mobilecompass.anappoficeandfire.core.FireAndIceApplication
 import de.mobilecompass.anappoficeandfire.modules.houses.HousesRepository
-import de.mobilecompass.anappoficeandfire.modules.houses.database.models.HouseDB
-import kotlinx.coroutines.flow.Flow
+import de.mobilecompass.anappoficeandfire.modules.houses.domain.model.House
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class HouseListViewModel: ViewModel() {
+class HouseDetailViewModel(val houseId: Long?): ViewModel() {
 
     // ----------------------------------------------------------------------------
     // region Inner types
     // ----------------------------------------------------------------------------
+
+    sealed class State {
+        object Loading: State()
+        class Error(val message: String): State()
+        class Success(val house: House): State()
+    }
 
     // ----------------------------------------------------------------------------
     // endregion
@@ -27,7 +34,7 @@ class HouseListViewModel: ViewModel() {
         // region Constants
         // ----------------------------------------------------------------------------
 
-        val LOG_TAG: String = HouseListViewModel::class.java.simpleName
+        val LOG_TAG: String = HouseDetailViewModel::class.java.simpleName
 
         // ----------------------------------------------------------------------------
         // endregion
@@ -46,11 +53,11 @@ class HouseListViewModel: ViewModel() {
     // region Public properties
     // ----------------------------------------------------------------------------
 
+    var state by mutableStateOf<State>(State.Loading)
+        private set
+
     @Inject
     lateinit var repository: HousesRepository
-
-    @OptIn(ExperimentalPagingApi::class)
-    val houses: Flow<PagingData<HouseDB>>
 
     // ----------------------------------------------------------------------------
     // endregion
@@ -86,7 +93,7 @@ class HouseListViewModel: ViewModel() {
 
     init {
         FireAndIceApplication.appComponent.inject(this)
-        houses = repository.pager().flow.cachedIn(viewModelScope)
+        loadHouse()
     }
 
     // ----------------------------------------------------------------------------
@@ -120,6 +127,22 @@ class HouseListViewModel: ViewModel() {
     // ----------------------------------------------------------------------------
     // region Private methods
     // ----------------------------------------------------------------------------
+
+    private fun loadHouse() = viewModelScope.launch {
+        state = State.Loading
+
+        val houseId = houseId ?: run {
+            state = State.Error("No ID for house given")
+            return@launch
+        }
+
+        val house = repository.getHouse(houseId) ?: run {
+            state = State.Error("No house for id $houseId available")
+            return@launch
+        }
+
+        state = State.Success(house)
+    }
 
     // ----------------------------------------------------------------------------
     // endregion

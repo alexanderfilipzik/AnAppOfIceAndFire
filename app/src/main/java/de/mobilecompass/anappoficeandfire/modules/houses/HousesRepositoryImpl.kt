@@ -5,7 +5,9 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import de.mobilecompass.anappoficeandfire.modules.houses.database.HousesLocalDatasource
 import de.mobilecompass.anappoficeandfire.modules.houses.database.models.HouseDB
+import de.mobilecompass.anappoficeandfire.modules.houses.database.models.asHouse
 import de.mobilecompass.anappoficeandfire.modules.houses.domain.HousesRemoteMediator
+import de.mobilecompass.anappoficeandfire.modules.houses.domain.model.House
 import de.mobilecompass.anappoficeandfire.modules.houses.network.HousesRemoteDataSource
 import javax.inject.Inject
 
@@ -104,6 +106,8 @@ class HousesRepositoryImpl @Inject constructor(
     ) {
         localDatasource.pagingSource()
     }
+
+    override suspend fun getHouse(houseId: Long): House? = localDatasource.getHouse(houseId)?.asHouse()
 
     // ----------------------------------------------------------------------------
     // endregion
