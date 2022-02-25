@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">An App Of Ice And Fire</string>
 
+    <string name="button_label_retry_on_fetch_error">Retry</string>
+
     <string name="label_house_region">Region</string>
     <string name="label_house_words">Words</string>
     <string name="label_house_coat_of_arms">Coat of arms</string>

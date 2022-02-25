@@ -122,6 +122,7 @@ class FireAndIceApplication: Application() {
 
     private fun initDagger() {
         appComponent = DaggerAppComponent.builder()
+            // currently it doesn't make a difference if we specify a value here, because we are doing direct api calls
             .networkModule(NetworkModule("https://www.anapioficeandfire.com/api/"))
             .housesModule(HousesModule(this))
             .build()

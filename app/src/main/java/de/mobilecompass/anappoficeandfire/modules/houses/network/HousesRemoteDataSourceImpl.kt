@@ -91,7 +91,12 @@ class HousesRemoteDataSourceImpl @Inject constructor(
     override suspend fun getHouses(url: String): Result<HousesDataDTO> =
         withContext(Dispatchers.IO) {
             Timber.i("Fetch content at $url")
-            val housesResponse = housesApi.getHousesByURL(url)
+            val housesResponse = try {
+                housesApi.getHousesByURL(url)
+            } catch (exception: Exception) {
+                return@withContext Result.failure(HousesRemoteException(exception.localizedMessage))
+
+            }
             val housesList = housesResponse.body()
 
             if (!housesResponse.isSuccessful || housesList.isNullOrEmpty()) {

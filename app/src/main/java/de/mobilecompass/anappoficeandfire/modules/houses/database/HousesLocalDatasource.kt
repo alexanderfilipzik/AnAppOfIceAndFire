@@ -25,6 +25,8 @@ interface HousesLocalDatasource {
 
     fun getHouse(id: Long): LiveData<HouseDB>
 
+    suspend fun getHouses(): List<HouseDB>
+
     suspend fun getRemoteKeysByHouseId(id: Long): HouseRemoteKeysDB?
 
     suspend fun getHousesCount(): Int

@@ -1,4 +1,4 @@
-package de.mobilecompass.anappoficeandfire
+package de.mobilecompass.anappoficeandfire.core
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity

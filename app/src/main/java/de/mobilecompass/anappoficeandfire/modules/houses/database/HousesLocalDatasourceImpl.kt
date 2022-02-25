@@ -99,6 +99,8 @@ class HousesLocalDatasourceImpl @Inject constructor(private val database: HouseD
 
     override fun getHouse(id: Long): LiveData<HouseDB> = database.houseDao.getHouse(id)
 
+    override suspend fun getHouses(): List<HouseDB> = database.houseDao.getAll()
+
     override suspend fun getRemoteKeysByHouseId(id: Long): HouseRemoteKeysDB? =
         withContext(Dispatchers.IO) {
             database.houseRemoteKeysDao.remoteKeysByHouseId(id)
