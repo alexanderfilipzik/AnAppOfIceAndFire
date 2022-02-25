@@ -19,9 +19,7 @@ interface HousesLocalDatasource {
     // region Methods
     // ----------------------------------------------------------------------------
 
-    suspend fun insertHouses(houses: List<HouseDB>)
-
-    suspend fun insertRemoteKeys(remoteKeys: List<HouseRemoteKeysDB>)
+    suspend fun insertHousesAndRemoteKeys(houses: List<HouseDB>, remoteKeys: List<HouseRemoteKeysDB>)
 
     fun getHouse(id: Long): LiveData<HouseDB>
 

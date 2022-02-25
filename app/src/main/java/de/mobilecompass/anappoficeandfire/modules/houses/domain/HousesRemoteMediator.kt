@@ -8,6 +8,7 @@ import de.mobilecompass.anappoficeandfire.modules.houses.database.HousesLocalDat
 import de.mobilecompass.anappoficeandfire.modules.houses.database.models.HouseDB
 import de.mobilecompass.anappoficeandfire.modules.houses.network.HousesRemoteDataSource
 import de.mobilecompass.anappoficeandfire.modules.houses.network.models.asHousesDB
+import timber.log.Timber
 import java.io.InvalidObjectException
 
 @OptIn(ExperimentalPagingApi::class)
@@ -104,13 +105,26 @@ class HousesRemoteMediator(
         loadType: LoadType,
         state: PagingState<Int, HouseDB>
     ): MediatorResult {
-        // Get URL to load or return a result from here
+        Timber.d("loadType: $loadType")
 
+        // Get URL to load or return a result from here
         val url = when (loadType) {
             LoadType.REFRESH -> initialUrl
             LoadType.PREPEND -> return MediatorResult.Success(true)
             LoadType.APPEND -> {
-                val lastItem = state.lastItemOrNull() ?: return MediatorResult.Success(true)
+                val lastItem = state.lastItemOrNull() ?: run {
+                    // FIX or NEEDED?: somehow state.pages has no data
+                    // but there is data already in the database after the initial REFRESH.
+                    //
+                    // So set endOfPaginationReached to false if we
+                    // are displaying nothing but data is in the DB.
+
+                    val dbEntryCount = localDatasource.getHousesCount()
+                    val endOfPaginationReached = dbEntryCount == 0
+
+                    Timber.d("lastItemOrNull is null; endOfPaginationReached: $endOfPaginationReached")
+                    return MediatorResult.Success(endOfPaginationReached)
+                }
                 val keys = lastItem.let { house ->
                     localDatasource.getRemoteKeysByHouseId(house.id)
                 }
@@ -133,12 +147,13 @@ class HousesRemoteMediator(
 
         // Insert remote content into database
 
-        localDatasource.insertHouses(housesData.list.asHousesDB())
-        localDatasource.insertRemoteKeys(housesData.asRemoteKeysDB())
+        localDatasource.insertHousesAndRemoteKeys(housesData.list.asHousesDB(), housesData.asRemoteKeysDB())
 
         // Check if end of pagination is reached
 
         val endOfPaginationReached = housesData.nextPageUrl == null
+
+        Timber.d("endOfPaginationReached: $endOfPaginationReached")
 
         return MediatorResult.Success(endOfPaginationReached)
     }

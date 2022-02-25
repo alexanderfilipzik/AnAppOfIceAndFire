@@ -2,6 +2,7 @@ package de.mobilecompass.anappoficeandfire.modules.houses.database
 
 import androidx.lifecycle.LiveData
 import androidx.paging.PagingSource
+import androidx.room.withTransaction
 import de.mobilecompass.anappoficeandfire.modules.houses.database.models.HouseDB
 import de.mobilecompass.anappoficeandfire.modules.houses.database.models.HouseRemoteKeysDB
 import kotlinx.coroutines.Dispatchers
@@ -87,32 +88,31 @@ class HousesLocalDatasourceImpl @Inject constructor(private val database: HouseD
     // region System/Overridden methods
     // ----------------------------------------------------------------------------
 
-    override suspend fun insertHouses(houses: List<HouseDB>) =
-        withContext(Dispatchers.IO) {
-            database.houseDao.insertAll(houses)
-        }
-
-    override suspend fun insertRemoteKeys(remoteKeys: List<HouseRemoteKeysDB>) =
-        withContext(Dispatchers.IO) {
+    override suspend fun insertHousesAndRemoteKeys(houses: List<HouseDB>, remoteKeys: List<HouseRemoteKeysDB>) =
+        database.withTransaction {
             database.houseRemoteKeysDao.insertAll(remoteKeys)
+            database.houseDao.insertAll(houses)
         }
 
     override fun getHouse(id: Long): LiveData<HouseDB> = database.houseDao.getHouse(id)
 
-    override suspend fun getHouses(): List<HouseDB> = database.houseDao.getAll()
+    override suspend fun getHouses(): List<HouseDB> =
+        database.withTransaction {
+            database.houseDao.getAll()
+        }
 
     override suspend fun getRemoteKeysByHouseId(id: Long): HouseRemoteKeysDB? =
-        withContext(Dispatchers.IO) {
+        database.withTransaction {
             database.houseRemoteKeysDao.remoteKeysByHouseId(id)
         }
 
     override suspend fun getHousesCount(): Int =
-        withContext(Dispatchers.IO) {
+        database.withTransaction {
             database.houseDao.getCount()
         }
 
     override suspend fun deleteAll() =
-        withContext(Dispatchers.IO) {
+        database.withTransaction {
             database.houseDao.deleteAll()
             database.houseRemoteKeysDao.deleteAll()
         }
