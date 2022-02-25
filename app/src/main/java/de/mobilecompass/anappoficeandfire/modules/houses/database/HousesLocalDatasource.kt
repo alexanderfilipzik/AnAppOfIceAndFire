@@ -1,5 +1,6 @@
 package de.mobilecompass.anappoficeandfire.modules.houses.database
 
+import androidx.lifecycle.LiveData
 import androidx.paging.PagingSource
 import de.mobilecompass.anappoficeandfire.modules.houses.database.models.HouseDB
 import de.mobilecompass.anappoficeandfire.modules.houses.database.models.HouseRemoteKeysDB
@@ -22,7 +23,7 @@ interface HousesLocalDatasource {
 
     suspend fun insertRemoteKeys(remoteKeys: List<HouseRemoteKeysDB>)
 
-    suspend fun getHouse(id: Long): HouseDB?
+    fun getHouse(id: Long): LiveData<HouseDB>
 
     suspend fun getRemoteKeysByHouseId(id: Long): HouseRemoteKeysDB?
 

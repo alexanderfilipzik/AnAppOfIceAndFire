@@ -1,5 +1,6 @@
 package de.mobilecompass.anappoficeandfire.modules.houses
 
+import androidx.lifecycle.LiveData
 import androidx.paging.Pager
 import de.mobilecompass.anappoficeandfire.modules.houses.database.models.HouseDB
 import de.mobilecompass.anappoficeandfire.modules.houses.domain.model.House
@@ -20,7 +21,7 @@ interface HousesRepository {
 
     fun pager(): Pager<Int, HouseDB>
 
-    suspend fun getHouse(houseId: Long): House?
+    fun getHouse(houseId: Long): LiveData<House>
 
     // ----------------------------------------------------------------------------
     // endregion

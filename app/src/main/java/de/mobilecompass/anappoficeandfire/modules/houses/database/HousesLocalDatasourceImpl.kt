@@ -1,5 +1,6 @@
 package de.mobilecompass.anappoficeandfire.modules.houses.database
 
+import androidx.lifecycle.LiveData
 import androidx.paging.PagingSource
 import de.mobilecompass.anappoficeandfire.modules.houses.database.models.HouseDB
 import de.mobilecompass.anappoficeandfire.modules.houses.database.models.HouseRemoteKeysDB
@@ -96,10 +97,7 @@ class HousesLocalDatasourceImpl @Inject constructor(private val database: HouseD
             database.houseRemoteKeysDao.insertAll(remoteKeys)
         }
 
-    override suspend fun getHouse(id: Long): HouseDB? =
-        withContext(Dispatchers.IO) {
-            database.houseDao.getHouse(id)
-        }
+    override fun getHouse(id: Long): LiveData<HouseDB> = database.houseDao.getHouse(id)
 
     override suspend fun getRemoteKeysByHouseId(id: Long): HouseRemoteKeysDB? =
         withContext(Dispatchers.IO) {

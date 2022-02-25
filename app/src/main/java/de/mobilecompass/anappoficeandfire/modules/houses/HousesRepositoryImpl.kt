@@ -1,5 +1,7 @@
 package de.mobilecompass.anappoficeandfire.modules.houses
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Transformations
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
@@ -107,8 +109,9 @@ class HousesRepositoryImpl @Inject constructor(
         localDatasource.pagingSource()
     }
 
-    override suspend fun getHouse(houseId: Long): House? = localDatasource.getHouse(houseId)?.asHouse()
-
+    override fun getHouse(houseId: Long): LiveData<House> = Transformations.map(localDatasource.getHouse(houseId)) {
+        it.asHouse()
+    }
     // ----------------------------------------------------------------------------
     // endregion
     // ----------------------------------------------------------------------------

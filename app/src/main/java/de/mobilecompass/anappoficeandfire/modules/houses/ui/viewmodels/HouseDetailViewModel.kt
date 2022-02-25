@@ -1,15 +1,12 @@
 package de.mobilecompass.anappoficeandfire.modules.houses.ui.viewmodels
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import de.mobilecompass.anappoficeandfire.core.FireAndIceApplication
 import de.mobilecompass.anappoficeandfire.modules.houses.HousesRepository
 import de.mobilecompass.anappoficeandfire.modules.houses.domain.model.House
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class HouseDetailViewModel(val houseId: Long?): ViewModel() {
@@ -53,7 +50,7 @@ class HouseDetailViewModel(val houseId: Long?): ViewModel() {
     // region Public properties
     // ----------------------------------------------------------------------------
 
-    var state by mutableStateOf<State>(State.Loading)
+    lateinit var state: LiveData<State>
         private set
 
     @Inject
@@ -128,20 +125,19 @@ class HouseDetailViewModel(val houseId: Long?): ViewModel() {
     // region Private methods
     // ----------------------------------------------------------------------------
 
-    private fun loadHouse() = viewModelScope.launch {
-        state = State.Loading
-
+    private fun loadHouse() {
         val houseId = houseId ?: run {
-            state = State.Error("No ID for house given")
-            return@launch
+            state = MutableLiveData(State.Error("No ID for house given"))
+            return
         }
 
-        val house = repository.getHouse(houseId) ?: run {
-            state = State.Error("No house for id $houseId available")
-            return@launch
-        }
+        state = Transformations.map(repository.getHouse(houseId)) { house ->
+            val house = house ?: run {
+                return@map State.Error("No house for id $houseId available")
+            }
 
-        state = State.Success(house)
+            return@map State.Success(house)
+        }
     }
 
     // ----------------------------------------------------------------------------

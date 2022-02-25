@@ -1,5 +1,6 @@
 package de.mobilecompass.anappoficeandfire.modules.houses.database
 
+import androidx.lifecycle.LiveData
 import androidx.paging.PagingSource
 import androidx.room.*
 import de.mobilecompass.anappoficeandfire.modules.houses.database.models.HouseDB
@@ -26,7 +27,7 @@ interface HouseDao {
     suspend fun getAll(): List<HouseDB>
 
     @Query("SELECT * FROM houses WHERE id = :houseId")
-    suspend fun getHouse(houseId: Long): HouseDB
+    fun getHouse(houseId: Long): LiveData<HouseDB>
 
     @Query("SELECT COUNT(id) FROM houses")
     suspend fun getCount(): Int
