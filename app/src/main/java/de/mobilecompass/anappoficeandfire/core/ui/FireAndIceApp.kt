@@ -19,6 +19,8 @@ import de.mobilecompass.anappoficeandfire.modules.houses.ui.composables.HouseDet
 import de.mobilecompass.anappoficeandfire.modules.houses.ui.composables.HouseList
 import de.mobilecompass.anappoficeandfire.modules.houses.ui.viewmodels.HouseDetailViewModel
 import de.mobilecompass.anappoficeandfire.modules.houses.ui.viewmodels.HouseListViewModel
+import java.net.URLDecoder
+import java.net.URLEncoder
 
 @Composable
 fun FireAndIceApp() {
@@ -45,21 +47,22 @@ fun FireAndIceNavHost(
 
         composable(housesRouteName) {
             val viewModel = viewModel<HouseListViewModel>()
-            HouseList(viewModel.houses) { houseId ->
-                navigateToHouseDetail(navController, houseId)
+            HouseList(viewModel.houses) { houseUrl ->
+                navigateToHouseDetail(navController, houseUrl)
             }
         }
 
-        val houseIdParameterName = "houseId"
+        val houseUrlParameterName = "houseUrl"
         composable(
-            route = "$housesRouteName/{$houseIdParameterName}",
+            route = "$housesRouteName/{$houseUrlParameterName}",
             arguments = listOf(
-                navArgument(houseIdParameterName) { type = NavType.LongType }
+                navArgument(houseUrlParameterName) { type = NavType.StringType }
             )
         ) { backStackEntry ->
-            val houseId = backStackEntry.arguments?.getLong(houseIdParameterName)
+            val houseUrlEncoded = backStackEntry.arguments?.getString(houseUrlParameterName)
+            val houseUrl = URLDecoder.decode(houseUrlEncoded, "utf-8")
             val viewModel = viewModel<HouseDetailViewModel>(initializer = {
-                HouseDetailViewModel(houseId)
+                HouseDetailViewModel(houseUrl)
             })
             val state: HouseDetailViewModel.State by viewModel.state.observeAsState(HouseDetailViewModel.State.Loading)
             HouseDetailForState(state)
@@ -67,6 +70,7 @@ fun FireAndIceNavHost(
     }
 }
 
-private fun navigateToHouseDetail(navController: NavHostController, houseId: Long) {
-    navController.navigate("${Houses.name}/$houseId")
+private fun navigateToHouseDetail(navController: NavHostController, houseUrl: String) {
+    val urlEncoded = URLEncoder.encode(houseUrl, "utf-8")
+    navController.navigate("${Houses.name}/$urlEncoded")
 }

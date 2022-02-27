@@ -109,8 +109,9 @@ class HousesRepositoryImpl @Inject constructor(
         localDatasource.pagingSource()
     }
 
-    override fun getHouse(houseId: Long): LiveData<House> = Transformations.map(localDatasource.getHouse(houseId)) {
-        it.asHouse()
+    // TODO: load from web if not in DB
+    override fun getHouse(houseUrl: String): LiveData<House?> = Transformations.map(localDatasource.getHouse(houseUrl)) {
+        it?.asHouse()
     }
     // ----------------------------------------------------------------------------
     // endregion

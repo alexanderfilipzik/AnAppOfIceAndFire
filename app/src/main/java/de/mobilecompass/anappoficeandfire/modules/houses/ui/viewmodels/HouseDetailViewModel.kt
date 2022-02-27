@@ -1,24 +1,21 @@
 package de.mobilecompass.anappoficeandfire.modules.houses.ui.viewmodels
 
-import androidx.lifecycle.Transformations
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.*
 import de.mobilecompass.anappoficeandfire.core.FireAndIceApplication
 import de.mobilecompass.anappoficeandfire.modules.houses.HousesRepository
 import de.mobilecompass.anappoficeandfire.modules.houses.domain.model.House
 import javax.inject.Inject
 
-class HouseDetailViewModel(val houseId: Long?): ViewModel() {
+class HouseDetailViewModel(val houseUrl: String?) : ViewModel() {
 
     // ----------------------------------------------------------------------------
     // region Inner types
     // ----------------------------------------------------------------------------
 
     sealed class State {
-        object Loading: State()
-        class Error(val message: String): State()
-        class Success(val house: House): State()
+        object Loading : State()
+        class Error(val message: String) : State()
+        class Success(val house: House) : State()
     }
 
     // ----------------------------------------------------------------------------
@@ -51,6 +48,11 @@ class HouseDetailViewModel(val houseId: Long?): ViewModel() {
     // ----------------------------------------------------------------------------
 
     lateinit var state: LiveData<State>
+        private set
+
+    private lateinit var house: LiveData<House?>
+
+    private lateinit var overlordHouse: LiveData<House?>
         private set
 
     @Inject
@@ -126,14 +128,14 @@ class HouseDetailViewModel(val houseId: Long?): ViewModel() {
     // ----------------------------------------------------------------------------
 
     private fun loadHouse() {
-        val houseId = houseId ?: run {
-            state = MutableLiveData(State.Error("No ID for house given"))
+        val houseUrl = houseUrl ?: run {
+            state = MutableLiveData(State.Error("No url for house provided"))
             return
         }
 
-        state = Transformations.map(repository.getHouse(houseId)) { house ->
+        state = Transformations.map(repository.getHouse(houseUrl)) { house ->
             val house = house ?: run {
-                return@map State.Error("No house for id $houseId available")
+                return@map State.Error("No house for url $houseUrl available")
             }
 
             return@map State.Success(house)

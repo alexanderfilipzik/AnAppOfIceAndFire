@@ -5,8 +5,6 @@ import androidx.paging.PagingSource
 import androidx.room.withTransaction
 import de.mobilecompass.anappoficeandfire.modules.houses.database.models.HouseDB
 import de.mobilecompass.anappoficeandfire.modules.houses.database.models.HouseRemoteKeysDB
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class HousesLocalDatasourceImpl @Inject constructor(private val database: HouseDatabase): HousesLocalDatasource {
@@ -94,7 +92,7 @@ class HousesLocalDatasourceImpl @Inject constructor(private val database: HouseD
             database.houseDao.insertAll(houses)
         }
 
-    override fun getHouse(id: Long): LiveData<HouseDB> = database.houseDao.getHouse(id)
+    override fun getHouse(url: String): LiveData<HouseDB?> = database.houseDao.getHouse(url)
 
     override suspend fun getHouses(): List<HouseDB> =
         database.withTransaction {

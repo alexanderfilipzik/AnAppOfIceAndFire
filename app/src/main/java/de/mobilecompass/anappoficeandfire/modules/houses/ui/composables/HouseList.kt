@@ -23,7 +23,7 @@ import de.mobilecompass.anappoficeandfire.modules.houses.database.models.asHouse
 import kotlinx.coroutines.flow.Flow
 
 @Composable
-fun HouseList(houses: Flow<PagingData<HouseDB>>, onHouseClicked: (Long) -> Unit) {
+fun HouseList(houses: Flow<PagingData<HouseDB>>, onHouseClicked: (url: String) -> Unit) {
     val housesAsLazyPagingItems: LazyPagingItems<HouseDB> = houses.collectAsLazyPagingItems()
     val isRefreshing =
         housesAsLazyPagingItems.loadState.refresh == LoadState.Loading || housesAsLazyPagingItems.loadState.append == LoadState.Loading
@@ -38,7 +38,7 @@ fun HouseList(houses: Flow<PagingData<HouseDB>>, onHouseClicked: (Long) -> Unit)
             items(items = housesAsLazyPagingItems) {
                 it?.let {
                     HouseListEntry(house = it.asHouse()) {
-                        onHouseClicked(it.id)
+                        onHouseClicked(it.url)
                     }
                 }
             }

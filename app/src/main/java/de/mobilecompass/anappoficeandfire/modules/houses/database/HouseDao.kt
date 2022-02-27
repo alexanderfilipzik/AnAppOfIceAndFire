@@ -26,8 +26,8 @@ interface HouseDao {
     @Query("SELECT * FROM houses ORDER BY id")
     suspend fun getAll(): List<HouseDB>
 
-    @Query("SELECT * FROM houses WHERE id = :houseId")
-    fun getHouse(houseId: Long): LiveData<HouseDB>
+    @Query("SELECT * FROM houses WHERE url = :url")
+    fun getHouse(url: String): LiveData<HouseDB?>
 
     @Query("SELECT COUNT(id) FROM houses")
     suspend fun getCount(): Int

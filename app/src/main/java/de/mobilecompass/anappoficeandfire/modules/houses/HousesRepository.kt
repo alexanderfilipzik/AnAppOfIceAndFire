@@ -21,7 +21,7 @@ interface HousesRepository {
 
     fun pager(): Pager<Int, HouseDB>
 
-    fun getHouse(houseId: Long): LiveData<House>
+    fun getHouse(houseUrl: String): LiveData<House?>
 
     // ----------------------------------------------------------------------------
     // endregion

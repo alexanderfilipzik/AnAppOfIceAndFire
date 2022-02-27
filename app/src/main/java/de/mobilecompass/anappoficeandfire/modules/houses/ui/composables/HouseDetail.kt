@@ -43,7 +43,7 @@ fun HouseDetailLoading() {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             CircularProgressIndicator()
             Text(
-                "Enter house...",
+                stringResource(R.string.loading_house_screen),
                 style = MaterialTheme.typography.subtitle1,
                 modifier = Modifier.padding(8.dp)
             )
@@ -89,12 +89,16 @@ fun HouseDescriptor(
             style = MaterialTheme.typography.h5
         )
 
-        textEntries.map { text ->
-            Text(
-                text = text.ifBlank { "-" },
-                style = MaterialTheme.typography.body1
-            )
-        }
+        textEntries
+            .filter {
+                it.isNotBlank()
+            }
+            .map { text ->
+                Text(
+                    text = text,
+                    style = MaterialTheme.typography.body1
+                )
+            }
     }
 }
 
@@ -122,11 +126,11 @@ fun HouseDetail(house: House) {
                 text = house.region,
             )
             HouseDescriptor(
-                label = stringResource(R.string.label_house_coat_of_current_founded),
+                label = stringResource(R.string.label_house_current_founded),
                 text = house.founded,
             )
             HouseDescriptor(
-                label = stringResource(R.string.label_house_coat_of_current_died_out),
+                label = stringResource(R.string.label_house_current_died_out),
                 text = house.diedOut,
             )
             HouseDescriptor(
@@ -142,11 +146,11 @@ fun HouseDetail(house: House) {
                 textEntries = house.titles
             )
             HouseDescriptor(
-                label = stringResource(R.string.label_house_coat_of_seats),
+                label = stringResource(R.string.label_house_seats),
                 textEntries = house.seats
             )
             HouseDescriptor(
-                label = stringResource(R.string.label_house_coat_of_ancestral_weapons),
+                label = stringResource(R.string.label_house_ancestral_weapons),
                 textEntries = house.ancestralWeapons
             )
         }
@@ -173,7 +177,7 @@ fun Preview_HouseDetail_Success() {
 @Composable
 fun Preview_HouseDetail_Error() {
     AnAppOfIceAndFireTheme {
-        HouseDetailForState(state = Error("Some error occured"))
+        HouseDetailForState(state = Error("Some error occurred"))
     }
 }
 

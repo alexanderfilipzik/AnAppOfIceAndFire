@@ -3,13 +3,15 @@
 
     <string name="button_label_retry_on_fetch_error">Retry</string>
 
+    <string name="loading_house_screen">"Enter house..."</string>
+
     <string name="label_house_region">Region</string>
     <string name="label_house_words">Words</string>
     <string name="label_house_coat_of_arms">Coat of arms</string>
     <string name="label_house_coat_of_titles">Titles</string>
-    <string name="label_house_coat_of_seats">Seats</string>
-    <string name="label_house_coat_of_ancestral_weapons">Ancestral weapons</string>
-    <string name="label_house_coat_of_current_founded">Founded</string>
-    <string name="label_house_coat_of_current_died_out">Died out</string>
+    <string name="label_house_seats">Seats</string>
+    <string name="label_house_ancestral_weapons">Ancestral weapons</string>
+    <string name="label_house_current_founded">Founded</string>
+    <string name="label_house_current_died_out">Died out</string>
 
 </resources>
