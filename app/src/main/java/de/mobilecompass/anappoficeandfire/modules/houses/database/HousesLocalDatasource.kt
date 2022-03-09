@@ -7,18 +7,6 @@ import de.mobilecompass.anappoficeandfire.modules.houses.database.models.HouseRe
 
 interface HousesLocalDatasource {
 
-    // ----------------------------------------------------------------------------
-    // region Properties
-    // ----------------------------------------------------------------------------
-
-    // ----------------------------------------------------------------------------
-    // endregion
-    // ----------------------------------------------------------------------------
-
-    // ----------------------------------------------------------------------------
-    // region Methods
-    // ----------------------------------------------------------------------------
-
     suspend fun insertHousesAndRemoteKeys(houses: List<HouseDB>, remoteKeys: List<HouseRemoteKeysDB>)
 
     fun getHouse(url: String): LiveData<HouseDB?>
@@ -32,8 +20,4 @@ interface HousesLocalDatasource {
     suspend fun deleteAll()
 
     fun pagingSource(): PagingSource<Int, HouseDB>
-
-    // ----------------------------------------------------------------------------
-    // endregion
-    // ----------------------------------------------------------------------------
 }

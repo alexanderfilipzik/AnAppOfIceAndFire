@@ -8,19 +8,6 @@ import de.mobilecompass.anappoficeandfire.modules.houses.database.models.HouseRe
 
 @Dao
 interface HouseRemoteKeysDao {
-
-    // ----------------------------------------------------------------------------
-    // region Properties
-    // ----------------------------------------------------------------------------
-
-    // ----------------------------------------------------------------------------
-    // endregion
-    // ----------------------------------------------------------------------------
-
-    // ----------------------------------------------------------------------------
-    // region Methods
-    // ----------------------------------------------------------------------------
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(remoteKeys: List<HouseRemoteKeysDB>)
 
@@ -32,8 +19,4 @@ interface HouseRemoteKeysDao {
 
     @Query("DELETE FROM houseRemoteKeys")
     suspend fun deleteAll()
-
-    // ----------------------------------------------------------------------------
-    // endregion
-    // ----------------------------------------------------------------------------
 }
